@@ -866,26 +866,276 @@ menyimpan histori stok keluar
 * Mirip sistem POS profesional
 
 ---
+# 🔥 Trigger Cancel Transaksi
+
+## 📌 Fungsi
+
+Trigger ini digunakan untuk:
+
+- Mengembalikan stok barang saat transaksi dibatalkan
+- Menyimpan histori pengembalian stok
+- Menjaga konsistensi data stok
+
+---
+
+# 🎯 Kapan Trigger Berjalan?
+
+Trigger berjalan ketika:
+
+```text
+status transaksi berubah menjadi canceled
+```
+
+Contoh:
+
+```text
+paid → canceled
+```
+
+---
+
+# 🧠 Cara Kerja Trigger
+
+Saat transaksi dibatalkan:
+
+1. Sistem mengambil seluruh item pada transaksi
+2. Sistem mengembalikan stok produk
+3. Sistem menyimpan histori stok masuk
+
+---
+
+# 📦 Contoh Kasus
+
+## Sebelum Cancel
+
+| Produk | Qty Dibeli |
+|---|---|
+| Indomie | 3 |
+| Teh Botol | 2 |
+
+Stok setelah pembayaran:
+
+| Produk | Stok |
+|---|---|
+| Indomie | 7 |
+| Teh Botol | 5 |
+
+---
+
+## Setelah Cancel
+
+Status transaksi:
+
+```text
+canceled
+```
+
+Maka stok otomatis kembali:
+
+| Produk | Stok Setelah Cancel |
+|---|---|
+| Indomie | 10 |
+| Teh Botol | 7 |
+
+---
+
+# 💻 SQL Trigger
+
+```sql
+CREATE TRIGGER trg_transaction_cancel
+ON transactions
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF UPDATE(status)
+    BEGIN
+        UPDATE p
+        SET p.stock = p.stock + ti.qty
+        FROM products p
+        JOIN transaction_items ti
+            ON p.id = ti.product_id
+        JOIN inserted i
+            ON ti.transaction_id = i.id
+        JOIN deleted d
+            ON d.id = i.id
+        WHERE i.status = 'canceled'
+          AND d.status <> 'canceled';
+
+        INSERT INTO stock_movements
+        (
+            product_id,
+            type,
+            qty,
+            reference_type,
+            reference_id
+        )
+        SELECT
+            ti.product_id,
+            'in',
+            ti.qty,
+            'transaction_cancel',
+            ti.transaction_id
+        FROM transaction_items ti
+        JOIN inserted i
+            ON ti.transaction_id = i.id
+        JOIN deleted d
+            ON d.id = i.id
+        WHERE i.status = 'canceled'
+          AND d.status <> 'canceled';
+    END
+END;
+```
+
+---
+
+# 🔍 Penjelasan Trigger
+
+## 📌 `IF UPDATE(status)`
+
+Digunakan untuk mengecek apakah kolom:
+
+```text
+status
+```
+
+mengalami perubahan.
+
+---
+
+## 📌 `inserted`
+
+Berisi data:
+
+```text
+setelah update
+```
+
+---
+
+## 📌 `deleted`
+
+Berisi data:
+
+```text
+sebelum update
+```
+
+---
+
+## 📌 Kondisi Trigger
+
+```sql
+i.status = 'canceled'
+AND d.status <> 'canceled'
+```
+
+Artinya:
+
+```text
+transaksi baru saja berubah menjadi canceled
+```
+
+Tujuannya agar stok tidak kembali berkali-kali.
+
+---
+
+# 📦 UPDATE Produk
+
+```sql
+SET p.stock = p.stock + ti.qty
+```
+
+Digunakan untuk:
+
+```text
+mengembalikan stok barang
+```
+
+---
+
+# 📊 INSERT Stock Movements
+
+```sql
+INSERT INTO stock_movements
+```
+
+Digunakan untuk:
+
+```text
+menyimpan histori stok masuk
+```
+
+karena transaksi dibatalkan.
+
+---
+
+# ✅ Keuntungan Trigger Cancel
+
+- Pengembalian stok otomatis
+- Histori stok tetap tercatat
+- Mengurangi human error
+- Data stok lebih konsisten
+- Cocok untuk sistem POS modern
+
+---
 
 # 📌 Kesimpulan
 
-Struktur database Sistem Kasir Desktop ini dirancang menggunakan konsep database relasional modern dengan fokus pada:
+Sistem Kasir Desktop (Point of Sale / POS) ini dirancang menggunakan konsep database relasional modern untuk membantu proses transaksi penjualan menjadi lebih cepat, aman, dan terstruktur.
 
-* Konsistensi data
-* Histori transaksi aman
-* Histori stok lengkap
-* Fleksibilitas sistem diskon
-* Kemudahan pengembangan sistem
+Sistem mendukung berbagai fitur penting seperti:
 
-Sistem ini cocok digunakan untuk:
+- Login multi user
+- Manajemen produk dan kategori
+- Sistem diskon fleksibel
+- Sistem member
+- Histori transaksi
+- Histori pergerakan stok
+- Cancel transaksi
+- Otomatisasi menggunakan trigger database
 
-* Projek sekolah
-* PKL
-* Capstone Project
-* Sistem kasir desktop
-* POS toko kecil dan menengah
+Struktur database dibuat dengan relasi yang jelas antar tabel sehingga data menjadi lebih konsisten dan mudah dikembangkan.
 
----
+Penggunaan trigger database membantu sistem bekerja secara otomatis, seperti:
+
+- Mengurangi stok saat transaksi berhasil
+- Mengembalikan stok saat transaksi dibatalkan
+- Menyimpan histori stok masuk dan keluar
+
+Dengan adanya sistem histori stok pada tabel:
+
+```text
+stock_movements
+```
+
+setiap perubahan stok dapat dilacak sehingga membantu proses audit dan monitoring barang.
+
+Sistem diskon juga dirancang lebih fleksibel karena satu produk dapat memiliki banyak diskon dan sistem otomatis memilih diskon terbesar yang aktif.
+
+Selain itu, fitur cancel transaksi membuat sistem lebih realistis seperti POS minimarket profesional karena stok dapat kembali otomatis ketika transaksi dibatalkan.
+
+Secara keseluruhan, sistem ini memiliki beberapa keunggulan:
+
+- Otomatis
+- Aman
+- Konsisten
+- Mengurangi human error
+- Mudah dikembangkan
+- Memiliki histori data lengkap
+- Cocok untuk sistem kasir modern
+
+Sistem Kasir Desktop ini cocok digunakan untuk:
+
+- Projek sekolah
+- PKL
+- Capstone project
+- Sistem kasir toko kecil dan menengah
+- Simulasi POS minimarket
+
+Dengan rancangan database dan trigger yang baik, sistem dapat menjadi dasar yang kuat untuk pengembangan aplikasi kasir desktop yang lebih kompleks di masa depan.
+
 
 # 🚀 Teknologi yang Digunakan
 
