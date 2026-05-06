@@ -261,443 +261,6 @@ Database terdiri dari tabel:
 
 ---
 
-# 📂 1. Tabel Categories
-
-## Fungsi
-
-Menyimpan kategori produk.
-
-## Contoh
-
-* Makanan
-* Minuman
-* Snack
-* Elektronik
-
----
-
-## Struktur Kolom
-
-| Kolom      | Tipe Data    | Fungsi        |
-| ---------- | ------------ | ------------- |
-| id         | int          | Primary key   |
-| name       | varchar(100) | Nama kategori |
-| created_at | datetime2    | Waktu dibuat  |
-
----
-
-## Relasi
-
-```text
-categories (1)
-→ products (many)
-```
-
----
-
-# 📂 2. Tabel Products
-
-## Fungsi
-
-Menyimpan data produk yang dijual.
-
----
-
-## Struktur Kolom
-
-| Kolom       | Tipe Data | Fungsi          |
-| ----------- | --------- | --------------- |
-| id          | int       | Primary key     |
-| category_id | int       | Relasi kategori |
-| name        | varchar   | Nama produk     |
-| barcode     | varchar   | Barcode produk  |
-| price       | decimal   | Harga produk    |
-| stock       | int       | Jumlah stok     |
-| is_active   | bit       | Status aktif    |
-| created_at  | datetime  | Waktu dibuat    |
-
----
-
-## Relasi
-
-### Ke Categories
-
-```text
-products many → 1 categories
-```
-
-### Ke Transaction Items
-
-```text
-products (1)
-→ transaction_items (many)
-```
-
-### Ke Stock Movements
-
-```text
-products (1)
-→ stock_movements (many)
-```
-
-### Ke Discount Products
-
-```text
-products (1)
-→ discount_products (many)
-```
-
----
-
-## Fungsi `is_active`
-
-Digunakan untuk:
-
-* Menonaktifkan produk
-* Menyembunyikan produk dari kasir
-* Menjaga histori transaksi
-
----
-
-# 📂 3. Tabel Discounts
-
-## Fungsi
-
-Menyimpan master data diskon.
-
----
-
-## Struktur Kolom
-
-| Kolom          | Fungsi            |
-| -------------- | ----------------- |
-| id             | Primary key       |
-| name           | Nama diskon       |
-| discount_type  | percent / nominal |
-| discount_value | Nilai diskon      |
-| start_date     | Tanggal mulai     |
-| end_date       | Tanggal selesai   |
-| is_active      | Status aktif      |
-| created_at     | Waktu dibuat      |
-
----
-
-## Relasi
-
-### Ke Discount Days
-
-```text
-discounts (1)
-→ discount_days (many)
-```
-
-### Ke Discount Products
-
-```text
-discounts (1)
-→ discount_products (many)
-```
-
-### Ke Transaction Item Discounts
-
-```text
-discounts (1)
-→ transaction_item_discounts (many)
-```
-
----
-
-# 📂 4. Tabel Discount Days
-
-## Fungsi
-
-Menentukan hari aktif suatu diskon.
-
----
-
-## Struktur Kolom
-
-| Kolom       | Fungsi          |
-| ----------- | --------------- |
-| id          | Primary key     |
-| discount_id | Relasi discount |
-| day_of_week | Hari aktif      |
-
----
-
-## Relasi
-
-```text
-discount_days many → 1 discounts
-```
-
----
-
-# 📂 5. Tabel Discount Products
-
-## Fungsi
-
-Tabel penghubung:
-
-```text
-products ↔ discounts
-```
-
----
-
-## Kenapa Dibutuhkan?
-
-Karena:
-
-* Satu produk bisa memiliki banyak diskon
-* Satu diskon bisa digunakan banyak produk
-
----
-
-## Struktur Kolom
-
-| Kolom       | Fungsi          |
-| ----------- | --------------- |
-| id          | Primary key     |
-| discount_id | Relasi discount |
-| product_id  | Relasi product  |
-
----
-
-# 📂 6. Tabel Members
-
-## Fungsi
-
-Menyimpan data member pelanggan.
-
----
-
-## Struktur Kolom
-
-| Kolom      | Fungsi        |
-| ---------- | ------------- |
-| id         | Primary key   |
-| name       | Nama member   |
-| phone      | Nomor telepon |
-| points     | Poin member   |
-| created_at | Waktu daftar  |
-
----
-
-## Relasi
-
-```text
-members (1)
-→ transactions (many)
-```
-
----
-
-# 📂 7. Tabel Users
-
-## Fungsi
-
-Menyimpan akun pengguna sistem.
-
----
-
-## Struktur Kolom
-
-| Kolom      | Fungsi         |
-| ---------- | -------------- |
-| id         | Primary key    |
-| name       | Nama user      |
-| username   | Username login |
-| password   | Password       |
-| role       | Role user      |
-| is_active  | Status aktif   |
-| created_at | Waktu dibuat   |
-
----
-
-## Relasi
-
-```text
-users (1)
-→ transactions (many)
-```
-
----
-
-# 📂 8. Tabel Transactions
-
-## Fungsi
-
-Menyimpan header transaksi.
-
----
-
-## Struktur Kolom
-
-| Kolom          | Fungsi               |
-| -------------- | -------------------- |
-| id             | Primary key          |
-| invoice_code   | Nomor invoice        |
-| user_id        | Kasir                |
-| total_price    | Total sebelum diskon |
-| total_discount | Total potongan       |
-| final_price    | Total akhir          |
-| paid_amount    | Jumlah bayar         |
-| change_amount  | Kembalian            |
-| status         | Status transaksi     |
-| created_at     | Waktu transaksi      |
-| member_id      | Relasi member        |
-
----
-
-## Relasi
-
-### Ke Users
-
-```text
-transactions many → 1 users
-```
-
-### Ke Members
-
-```text
-transactions many → 1 members
-```
-
-### Ke Transaction Items
-
-```text
-transactions (1)
-→ transaction_items (many)
-```
-
----
-
-## Status Transaksi
-
-Contoh:
-
-* pending
-* paid
-* canceled
-
----
-
-# 📂 9. Tabel Transaction Items
-
-## Fungsi
-
-Menyimpan detail barang transaksi.
-
----
-
-## Struktur Kolom
-
-| Kolom          | Fungsi               |
-| -------------- | -------------------- |
-| id             | Primary key          |
-| transaction_id | Relasi transaksi     |
-| product_id     | Relasi produk        |
-| product_name   | Snapshot nama produk |
-| price          | Harga produk         |
-| qty            | Jumlah               |
-| subtotal       | Harga × qty          |
-| discount_total | Total diskon item    |
-| final_price    | Harga akhir item     |
-
----
-
-## Relasi
-
-### Ke Transactions
-
-```text
-transaction_items many → 1 transactions
-```
-
-### Ke Products
-
-```text
-transaction_items many → 1 products
-```
-
-### Ke Transaction Item Discounts
-
-```text
-transaction_items (1)
-→ transaction_item_discounts (many)
-```
-
----
-
-# 📂 10. Tabel Transaction Item Discounts
-
-## Fungsi
-
-Menyimpan histori diskon saat transaksi.
-
----
-
-## Struktur Kolom
-
-| Kolom               | Fungsi                |
-| ------------------- | --------------------- |
-| id                  | Primary key           |
-| transaction_item_id | Relasi item transaksi |
-| discount_id         | Relasi discount       |
-| discount_name       | Snapshot nama diskon  |
-| discount_type       | Snapshot tipe         |
-| discount_value      | Snapshot nilai        |
-| amount_cut          | Total potongan        |
-
----
-
-## Relasi
-
-### Ke Transaction Items
-
-```text
-transaction_item_discounts many → 1 transaction_items
-```
-
-### Ke Discounts
-
-```text
-transaction_item_discounts many → 1 discounts
-```
-
----
-
-# 📂 11. Tabel Stock Movements
-
-## Fungsi
-
-Menyimpan histori perubahan stok.
-
----
-
-## Struktur Kolom
-
-| Kolom          | Fungsi           |
-| -------------- | ---------------- |
-| id             | Primary key      |
-| product_id     | Relasi produk    |
-| type           | IN / OUT         |
-| qty            | Jumlah perubahan |
-| reference_type | Sumber perubahan |
-| reference_id   | ID sumber        |
-| created_at     | Waktu perubahan  |
-
----
-
-## Relasi
-
-```text
-stock_movements many → 1 products
-```
-
----
-
 # ⚙️ Trigger Database
 
 ## 📌 Pengertian Trigger
@@ -712,33 +275,38 @@ pada tabel tertentu.
 
 ---
 
-# 🎯 Fungsi Trigger Pada Sistem
+# 🎯 Fungsi Trigger Pada Sistem POS
 
-Digunakan untuk:
+Trigger digunakan untuk:
 
 * Mengurangi stok otomatis
+* Mengembalikan stok otomatis
 * Menyimpan histori stok
 * Menjaga sinkronisasi transaksi
+* Mengurangi human error
+* Membantu audit stok
 
 ---
 
 # ⏱️ Kapan Trigger Berjalan?
 
-Trigger berjalan setelah:
+Trigger berjalan setelah transaksi berhasil diproses oleh sistem.
+
+Contoh:
 
 ```text
-transaksi berhasil disimpan
+Klik tombol bayar
 ```
 
-biasanya saat:
+atau ketika:
 
 ```text
-Klik Bayar
+status transaksi berubah menjadi canceled
 ```
 
 ---
 
-# 🛒 Sebelum Pembayaran
+# 🛒 Alur Sebelum Pembayaran
 
 Barang masih berada di:
 
@@ -749,24 +317,24 @@ keranjang sementara
 Kasir masih bisa:
 
 * Menambah barang
-* Mengedit jumlah
+* Mengedit jumlah barang
 * Menghapus barang
 
-Belum ada:
+Pada tahap ini:
 
-* Insert transaksi
-* Pengurangan stok
-* Histori stok
+* Belum ada pengurangan stok
+* Belum ada histori stok
+* Belum ada transaksi permanen
 
 ---
 
-# ✅ Setelah Pembayaran
+# ✅ Alur Setelah Pembayaran
 
 Sistem akan:
 
-1. INSERT transactions
-2. INSERT transaction_items
-3. Trigger berjalan
+1. Menyimpan transaksi
+2. Menyimpan detail barang transaksi
+3. Trigger berjalan otomatis
 4. Stok berkurang otomatis
 5. Histori stok dibuat otomatis
 
@@ -774,12 +342,13 @@ Sistem akan:
 
 # 🔥 Trigger AFTER INSERT Transaction Items
 
-## Fungsi
+## 📌 Fungsi Trigger
 
-Digunakan untuk:
+Trigger ini digunakan untuk:
 
-* Mengurangi stok produk
+* Mengurangi stok produk otomatis
 * Menyimpan histori stok keluar
+* Menjaga konsistensi stok barang
 
 ---
 
@@ -821,7 +390,7 @@ END;
 
 # 🧠 Penjelasan Trigger
 
-## inserted
+## 📌 inserted
 
 ```text
 inserted
@@ -831,22 +400,21 @@ merupakan tabel sementara bawaan SQL Server yang berisi data baru hasil INSERT.
 
 ---
 
-## UPDATE Products
+## 📌 Pengurangan Stok
 
 ```sql
-UPDATE p
 SET p.stock = p.stock - i.qty
 ```
 
 Digunakan untuk:
 
 ```text
-mengurangi stok produk
+mengurangi stok produk otomatis
 ```
 
 ---
 
-## INSERT Stock Movements
+## 📌 Histori Stok Keluar
 
 ```sql
 INSERT INTO stock_movements
@@ -860,25 +428,49 @@ menyimpan histori stok keluar
 
 ---
 
-# ✅ Keuntungan Menggunakan Trigger
+# 📦 Contoh Proses
 
-* Otomatis
-* Konsisten
-* Aman
-* Histori stok lengkap
-* Mengurangi human error
-* Mirip sistem POS profesional
+## Sebelum Pembayaran
+
+| Produk  | Stok |
+| ------- | ---- |
+| Indomie | 10   |
+
+Customer membeli:
+
+```text
+3 Indomie
+```
 
 ---
+
+## Setelah Pembayaran
+
+Trigger berjalan otomatis:
+
+```text
+10 - 3 = 7
+```
+
+Maka stok menjadi:
+
+| Produk  | Stok |
+| ------- | ---- |
+| Indomie | 7    |
+
+Dan histori stok keluar otomatis tersimpan.
+
+---
+
 # 🔥 Trigger Cancel Transaksi
 
-## 📌 Fungsi
+## 📌 Fungsi Trigger
 
 Trigger ini digunakan untuk:
 
-- Mengembalikan stok barang saat transaksi dibatalkan
-- Menyimpan histori pengembalian stok
-- Menjaga konsistensi data stok
+* Mengembalikan stok barang saat transaksi dibatalkan
+* Menyimpan histori pengembalian stok
+* Menjaga konsistensi data stok
 
 ---
 
@@ -902,44 +494,9 @@ paid → canceled
 
 Saat transaksi dibatalkan:
 
-1. Sistem mengambil seluruh item pada transaksi
+1. Sistem mengambil seluruh item transaksi
 2. Sistem mengembalikan stok produk
 3. Sistem menyimpan histori stok masuk
-
----
-
-# 📦 Contoh Kasus
-
-## Sebelum Cancel
-
-| Produk | Qty Dibeli |
-|---|---|
-| Indomie | 3 |
-| Teh Botol | 2 |
-
-Stok setelah pembayaran:
-
-| Produk | Stok |
-|---|---|
-| Indomie | 7 |
-| Teh Botol | 5 |
-
----
-
-## Setelah Cancel
-
-Status transaksi:
-
-```text
-canceled
-```
-
-Maka stok otomatis kembali:
-
-| Produk | Stok Setelah Cancel |
-|---|---|
-| Indomie | 10 |
-| Teh Botol | 7 |
 
 ---
 
@@ -994,7 +551,7 @@ END;
 
 ---
 
-# 🔍 Penjelasan Trigger
+# 🔍 Penjelasan Trigger Cancel
 
 ## 📌 `IF UPDATE(status)`
 
@@ -1008,7 +565,7 @@ mengalami perubahan.
 
 ---
 
-## 📌 `inserted`
+## 📌 inserted
 
 Berisi data:
 
@@ -1018,7 +575,7 @@ setelah update
 
 ---
 
-## 📌 `deleted`
+## 📌 deleted
 
 Berisi data:
 
@@ -1045,21 +602,21 @@ Tujuannya agar stok tidak kembali berkali-kali.
 
 ---
 
-# 📦 UPDATE Produk
+# 📦 Pengembalian Stok
 
 ```sql
 SET p.stock = p.stock + ti.qty
 ```
 
-Digunakan untuk:
+Digunkan untuk:
 
 ```text
-mengembalikan stok barang
+mengembalikan stok barang otomatis
 ```
 
 ---
 
-# 📊 INSERT Stock Movements
+# 📊 Histori Stok Masuk
 
 ```sql
 INSERT INTO stock_movements
@@ -1075,88 +632,72 @@ karena transaksi dibatalkan.
 
 ---
 
-# ✅ Keuntungan Trigger Cancel
+# 📦 Contoh Cancel Transaksi
 
-- Pengembalian stok otomatis
-- Histori stok tetap tercatat
-- Mengurangi human error
-- Data stok lebih konsisten
-- Cocok untuk sistem POS modern
+## Sebelum Cancel
+
+| Produk    | Qty Dibeli |
+| --------- | ---------- |
+| Indomie   | 3          |
+| Teh Botol | 2          |
+
+Stok setelah pembayaran:
+
+| Produk    | Stok |
+| --------- | ---- |
+| Indomie   | 7    |
+| Teh Botol | 5    |
+
+---
+
+## Setelah Cancel
+
+Status transaksi:
+
+```text
+canceled
+```
+
+Maka stok otomatis kembali:
+
+| Produk    | Stok Setelah Cancel |
+| --------- | ------------------- |
+| Indomie   | 10                  |
+| Teh Botol | 7                   |
+
+---
+
+# ✅ Keuntungan Menggunakan Trigger
+
+* Otomatis
+* Konsisten
+* Aman
+* Mengurangi human error
+* Histori stok lengkap
+* Membantu audit stok
+* Cocok untuk POS modern
 
 ---
 
 # 📌 Kesimpulan
 
-Sistem Kasir Desktop (Point of Sale / POS) ini dirancang menggunakan konsep database relasional modern untuk membantu proses transaksi penjualan menjadi lebih cepat, aman, dan terstruktur.
+Trigger pada sistem kasir desktop digunakan untuk membantu otomatisasi proses pengelolaan stok dan histori transaksi.
 
-Sistem mendukung berbagai fitur penting seperti:
+Dengan trigger:
 
-- Login multi user
-- Manajemen produk dan kategori
-- Sistem diskon fleksibel
-- Sistem member
-- Histori transaksi
-- Histori pergerakan stok
-- Cancel transaksi
-- Otomatisasi menggunakan trigger database
+* Stok dapat berkurang otomatis saat transaksi berhasil
+* Stok dapat kembali otomatis saat transaksi dibatalkan
+* Histori stok masuk dan keluar dapat tercatat otomatis
+* Data menjadi lebih konsisten dan aman
 
-Struktur database dibuat dengan relasi yang jelas antar tabel sehingga data menjadi lebih konsisten dan mudah dikembangkan.
-
-Penggunaan trigger database membantu sistem bekerja secara otomatis, seperti:
-
-- Mengurangi stok saat transaksi berhasil
-- Mengembalikan stok saat transaksi dibatalkan
-- Menyimpan histori stok masuk dan keluar
-
-Dengan adanya sistem histori stok pada tabel:
-
-```text
-stock_movements
-```
-
-setiap perubahan stok dapat dilacak sehingga membantu proses audit dan monitoring barang.
-
-Sistem diskon juga dirancang lebih fleksibel karena satu produk dapat memiliki banyak diskon dan sistem otomatis memilih diskon terbesar yang aktif.
-
-Selain itu, fitur cancel transaksi membuat sistem lebih realistis seperti POS minimarket profesional karena stok dapat kembali otomatis ketika transaksi dibatalkan.
-
-Secara keseluruhan, sistem ini memiliki beberapa keunggulan:
-
-- Otomatis
-- Aman
-- Konsisten
-- Mengurangi human error
-- Mudah dikembangkan
-- Memiliki histori data lengkap
-- Cocok untuk sistem kasir modern
-
-Sistem Kasir Desktop ini cocok digunakan untuk:
-
-- Projek sekolah
-- PKL
-- Capstone project
-- Sistem kasir toko kecil dan menengah
-- Simulasi POS minimarket
-
-Dengan rancangan database dan trigger yang baik, sistem dapat menjadi dasar yang kuat untuk pengembangan aplikasi kasir desktop yang lebih kompleks di masa depan.
+Penggunaan trigger juga membantu mengurangi kesalahan manual serta membuat sistem bekerja lebih profesional seperti aplikasi POS modern pada minimarket dan toko retail.
 
 ---
 
-# 🚀 Teknologi yang Digunakan
+# 🖼️ Diagram Sistem
 
-| Teknologi             | Fungsi           |
-| --------------------- | ---------------- |
-| SQL Server            | Database         |
-| Desktop App           | Aplikasi kasir   |
-| Trigger SQL           | Otomatisasi stok |
-| Relational Database   | Relasi data      |
-| Point of Sale Concept | Sistem transaksi |
+<img width="2552" height="1365" alt="diagramkolab-ERDpertransaksi drawio" src="https://github.com/user-attachments/assets/c1de136b-e802-4f8f-8574-f03b7b8a1989" />
 
----
-
-# 📖 Dokumentasi
-
-Dokumentasi ini dibuat sebagai rancangan sistem dan struktur database untuk mendukung pengembangan aplikasi kasir desktop modern.
 
 <img width="2552" height="1365" alt="diagramkolab-ERDpertransaksi drawio" src="https://github.com/user-attachments/assets/c1de136b-e802-4f8f-8574-f03b7b8a1989" />
 
