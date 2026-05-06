@@ -1,4 +1,3 @@
-````markdown
 # 🛒 SISTEM KASIR DESKTOP (POINT OF SALE)
 
 ## 📘 Deskripsi Proyek
