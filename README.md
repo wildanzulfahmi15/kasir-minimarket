@@ -8,6 +8,8 @@ Sistem Kasir Desktop merupakan aplikasi **Point of Sale (POS)** yang dirancang u
 Sistem ini dibuat menggunakan konsep database relasional modern sehingga mampu mendukung proses transaksi layaknya sistem POS minimarket profesional.
 
 ---
+## 👥 Nama SIswa
+#Muhammad Wildan Zulfahmi
 
 # 👨‍💻 Kelompok: LoopLab
 
