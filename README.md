@@ -696,8 +696,6 @@ Penggunaan trigger juga membantu mengurangi kesalahan manual serta membuat siste
 
 # 🖼️ Diagram Sistem
 
-<img width="2552" height="1365" alt="diagramkolab-ERDpertransaksi drawio" src="https://github.com/user-attachments/assets/c1de136b-e802-4f8f-8574-f03b7b8a1989" />
-
 
 <img width="2552" height="1365" alt="diagramkolab-ERDpertransaksi drawio" src="https://github.com/user-attachments/assets/c1de136b-e802-4f8f-8574-f03b7b8a1989" />
 
