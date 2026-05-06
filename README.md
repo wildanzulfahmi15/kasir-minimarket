@@ -1136,6 +1136,7 @@ Sistem Kasir Desktop ini cocok digunakan untuk:
 
 Dengan rancangan database dan trigger yang baik, sistem dapat menjadi dasar yang kuat untuk pengembangan aplikasi kasir desktop yang lebih kompleks di masa depan.
 
+---
 
 # 🚀 Teknologi yang Digunakan
 
